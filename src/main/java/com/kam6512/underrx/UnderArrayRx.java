@@ -89,7 +89,29 @@ public class UnderArrayRx {
         });
     }
 
+    public Observable<List<?>> drop(List<?> list) {
+        return drop(list, 1);
+    }
+
     public Observable<List<?>> drop(List<?> list, int count) {
+        return Observable.create(emitter -> {
+            if (checkList(list)) {
+                emitter.onNext(Lists.newArrayList());
+                emitter.onComplete();
+                return;
+            }
+            ArrayList<?> result = Lists.newArrayList(list);
+            result.subList(count,  list.size());
+            emitter.onNext(result);
+            emitter.onComplete();
+        });
+    }
+
+    public Observable<List<?>> dropRight(List<?> list) {
+        return dropRight(list, 1);
+    }
+
+    public Observable<List<?>> dropRight(List<?> list, int count) {
         return Observable.create(emitter -> {
             if (checkList(list)) {
                 emitter.onNext(Lists.newArrayList());
@@ -103,7 +125,6 @@ public class UnderArrayRx {
             emitter.onComplete();
         });
     }
-
 
     private static boolean checkList(List list) {
         return (list == null || list.isEmpty());
