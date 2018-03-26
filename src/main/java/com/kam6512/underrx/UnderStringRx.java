@@ -1,12 +1,10 @@
 package com.kam6512.underrx;
 
+import com.google.common.collect.Lists;
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
-import io.reactivex.schedulers.Schedulers;
 
 import java.text.Normalizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.List;
 
 public class UnderStringRx {
 
@@ -24,23 +22,6 @@ public class UnderStringRx {
                 .map(string -> string.replaceAll(spaceReg, non));
     }
 
-    public Observable<String> capitalize(String source) {
-        return Observable.just(source)
-                .map(String::trim)
-                .map(String::toLowerCase)
-                .map(string -> string.substring(0, 1).toUpperCase() + string.substring(1));
-    }
-
-    public Observable<String> deburr(String source) {
-        String regex = "\\p{InCombiningDiacriticalMarks}+";
-        return Observable.just(source)
-                .map(string -> Normalizer.normalize(string, Normalizer.Form.NFD))
-                .map(normalized -> normalized.replaceAll(regex, non));
-    }
-
-    // endsWith is passed -> use String.endsWith
-    // escape / escapeRegExp use Apache Lang3
-
     public Observable<String> kebabCase(String source) {
         return Observable.just(source)
                 .map(string -> string.replaceAll(upper, upperGroup))
@@ -48,8 +29,65 @@ public class UnderStringRx {
                 .map(String::trim)
                 .map(string -> replaceSpaceWithLowerCase(new StringBuilder(string)).toString())
                 .map(string -> string.replaceAll(spaceReg, "-"))
-                .map(string -> string.substring(0, 1).toLowerCase() + string.substring(1))
+                .map(string -> string.substring(0, 1).toUpperCase().concat(string.substring(1)))
                 .map(String::toLowerCase);
+    }
+
+    public Observable<String> snakeCase(String source) {
+        return Observable.just(source)
+                .map(string -> string.replaceAll(upper, upperGroup))
+                .map(string -> string.replaceAll(nonWordsReg, space))
+                .map(String::trim)
+                .map(string -> replaceSpaceWithLowerCase(new StringBuilder(string)).toString())
+                .map(string -> string.replaceAll(spaceReg, "_"))
+                .map(string -> string.substring(0, 1).toUpperCase().concat(string.substring(1)))
+                .map(String::toLowerCase);
+    }
+
+    public Observable<String> startCase(String source) {
+        return Observable.just(source)
+                .map(string -> string.replaceAll(upper, upperGroup))
+                .map(string -> string.replaceAll(nonWordsReg, space))
+                .map(String::trim)
+                .map(string -> replaceSpaceWithUpperCase(new StringBuilder(string)).toString())
+                .map(string -> string.substring(0, 1).toUpperCase() + string.substring(1));
+    }
+
+
+    private static StringBuilder replaceSpaceWithUpperCase(StringBuilder source) {
+        for (int i = -1; (i = source.indexOf(space, i + 1)) != -1; i++) {
+            source.setCharAt(i + 1, Character.toUpperCase(source.charAt(i + 1)));
+        }
+        return source;
+    }
+
+    private static StringBuilder replaceSpaceWithLowerCase(StringBuilder source) {
+        for (int i = -1; (i = source.indexOf(space, i + 1)) != -1; i++) {
+            source.setCharAt(i + 1, Character.toLowerCase(source.charAt(i + 1)));
+        }
+        return source;
+    }
+
+    public Observable<String> upperFirst(String source) {
+        return Observable.just(source)
+                .map(String::trim)
+                .map(string -> string.substring(0, 1).toUpperCase() + string.substring(1));
+    }
+
+
+    public Observable<String> lowerFirst(String source) {
+        return Observable.just(source)
+                .map(String::trim)
+                .map(string -> string.substring(0, 1).toLowerCase() + string.substring(1));
+    }
+
+
+    public Observable<String> upperCase(String source) {
+        return Observable.just(source)
+                .map(string -> string.replaceAll(upper, upperGroup))
+                .map(string -> string.replaceAll(nonWordsReg, space))
+                .map(String::trim)
+                .map(String::toUpperCase);
     }
 
     public Observable<String> lowerCase(String source) {
@@ -60,23 +98,44 @@ public class UnderStringRx {
                 .map(String::toLowerCase);
     }
 
-    public Observable<String> lowerFirst(String source) {
+    public Observable<String> capitalize(String source) {
         return Observable.just(source)
                 .map(String::trim)
-                .map(string -> string.substring(0, 1).toLowerCase() + string.substring(1));
+                .map(String::toLowerCase)
+                .map(string -> string.substring(0, 1).toUpperCase().concat(string.substring(1)));
     }
 
-    private static StringBuilder replaceSpaceWithUpperCase(StringBuilder source) {
-        for (int i = -1; (i = source.indexOf(" ", i + 1)) != -1; i++) {
-            source.setCharAt(i + 1, Character.toUpperCase(source.charAt(i + 1)));
-        }
-        return source;
+    public Observable<String> deburr(String source) {
+        String regex = "\\p{InCombiningDiacriticalMarks}+";
+        return Observable.just(source)
+                .map(string -> Normalizer.normalize(string, Normalizer.Form.NFD))
+                .map(normalized -> normalized.replaceAll(regex, non));
     }
 
-    private static StringBuilder replaceSpaceWithLowerCase(StringBuilder source) {
-        for (int i = -1; (i = source.indexOf(" ", i + 1)) != -1; i++) {
-            source.setCharAt(i + 1, Character.toLowerCase(source.charAt(i + 1)));
-        }
-        return source;
+    public Observable<String> repeat(String source, int repeatCount) {
+        return Observable.just(source).repeat(repeatCount).scan(String::concat).takeLast(1);
+    }
+
+
+    public Observable<List<String>> splitToList(String source, String splitBy, int takeCount) {
+        return Observable.just(source).map(string -> string.split(splitBy))
+                .map(Lists::newArrayList)
+                .map(strings -> strings.subList(0, takeCount));
+    }
+
+
+    public Observable<String> trimStart(String source) {
+        return Observable.just(source).map(string -> string.replaceAll("^\\s+", non));
+    }
+
+    public Observable<String> trimEnd(String source) {
+        return Observable.just(source).map(string -> string.replaceAll("\\s+$", non));
+    }
+
+
+    public Observable<List<String>> word(String source) {
+        return Observable.just(source)
+                .map(string -> string.split("\\W+"))
+                .map(Lists::newArrayList);
     }
 }
