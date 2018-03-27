@@ -1,5 +1,6 @@
 package com.kam6512.underrx;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import io.reactivex.Observable;
 
@@ -8,22 +9,24 @@ import java.util.List;
 
 public class UnderStringRx {
 
-    private static String nonWordsReg = "[\\W\\_]+";
-    private static String non = "";
-    private static String spaceReg = "\\s";
-    private static String space = " ";
-    private static String upper = "(\\p{Ll})(\\p{Lu})";
-    private static String upperGroup = "$1 $2";
+    private static final String nonWordsReg = "[\\W\\_]+";
+    private static final String non = "";
+    private static final String spaceReg = "\\s";
+    private static final String space = " ";
+    private static final String upper = "(\\p{Ll})(\\p{Lu})";
+    private static final String upperGroup = "$1 $2";
 
 
     public Observable<String> camelCase(String source) {
         return lowerCase(source)
+//                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> replaceSpaceWithUpperCase(new StringBuilder(string)).toString())
                 .map(string -> string.replaceAll(spaceReg, non));
     }
 
     public Observable<String> kebabCase(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> string.replaceAll(upper, upperGroup))
                 .map(string -> string.replaceAll(nonWordsReg, space))
                 .map(String::trim)
@@ -35,6 +38,7 @@ public class UnderStringRx {
 
     public Observable<String> snakeCase(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> string.replaceAll(upper, upperGroup))
                 .map(string -> string.replaceAll(nonWordsReg, space))
                 .map(String::trim)
@@ -46,6 +50,7 @@ public class UnderStringRx {
 
     public Observable<String> startCase(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> string.replaceAll(upper, upperGroup))
                 .map(string -> string.replaceAll(nonWordsReg, space))
                 .map(String::trim)
@@ -70,6 +75,7 @@ public class UnderStringRx {
 
     public Observable<String> upperFirst(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(String::trim)
                 .map(string -> string.substring(0, 1).toUpperCase() + string.substring(1));
     }
@@ -77,6 +83,7 @@ public class UnderStringRx {
 
     public Observable<String> lowerFirst(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(String::trim)
                 .map(string -> string.substring(0, 1).toLowerCase() + string.substring(1));
     }
@@ -84,6 +91,7 @@ public class UnderStringRx {
 
     public Observable<String> upperCase(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> string.replaceAll(upper, upperGroup))
                 .map(string -> string.replaceAll(nonWordsReg, space))
                 .map(String::trim)
@@ -92,6 +100,7 @@ public class UnderStringRx {
 
     public Observable<String> lowerCase(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> string.replaceAll(upper, upperGroup))
                 .map(string -> string.replaceAll(nonWordsReg, space))
                 .map(String::trim)
@@ -100,6 +109,7 @@ public class UnderStringRx {
 
     public Observable<String> capitalize(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(String::trim)
                 .map(String::toLowerCase)
                 .map(string -> string.substring(0, 1).toUpperCase().concat(string.substring(1)));
@@ -108,6 +118,7 @@ public class UnderStringRx {
     public Observable<String> deburr(String source) {
         String regex = "\\p{InCombiningDiacriticalMarks}+";
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> Normalizer.normalize(string, Normalizer.Form.NFD))
                 .map(normalized -> normalized.replaceAll(regex, non));
     }
@@ -118,23 +129,30 @@ public class UnderStringRx {
 
 
     public Observable<List<String>> splitToList(String source, String splitBy, int takeCount) {
-        return Observable.just(source).map(string -> string.split(splitBy))
+        return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
+                .map(string -> string.split(splitBy))
                 .map(Lists::newArrayList)
                 .map(strings -> strings.subList(0, takeCount));
     }
 
 
     public Observable<String> trimStart(String source) {
-        return Observable.just(source).map(string -> string.replaceAll("^\\s+", non));
+        return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
+                .map(string -> string.replaceAll("^\\s+", non));
     }
 
     public Observable<String> trimEnd(String source) {
-        return Observable.just(source).map(string -> string.replaceAll("\\s+$", non));
+        return Observable.just(source)
+                .filter(string-> !Strings.isNullOrEmpty(string))
+                .map(string -> string.replaceAll("\\s+$", non));
     }
 
 
     public Observable<List<String>> word(String source) {
         return Observable.just(source)
+                .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> string.split("\\W+"))
                 .map(Lists::newArrayList);
     }

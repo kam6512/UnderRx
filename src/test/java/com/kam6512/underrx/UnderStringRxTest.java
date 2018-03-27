@@ -8,14 +8,23 @@ import java.util.List;
 public class UnderStringRxTest {
 
     private UnderStringRx test = new UnderStringRx();
+    private UnderStringRxKt kt = new UnderStringRxKt();
 
     @Test
     public void camelCase() {
+        test.camelCase("").subscribe(UnderStringRxTest::print);
         test.camelCase("FooBar").subscribe(UnderStringRxTest::print);
         test.camelCase("Foo Bar").subscribe(UnderStringRxTest::print);
         test.camelCase("fooBar").subscribe(UnderStringRxTest::print);
         test.camelCase("--foo-bar--").subscribe(UnderStringRxTest::print);
         test.camelCase("__FOO_BAR__").subscribe(UnderStringRxTest::print);
+        print("==============================================");
+        kt.camelCase("").subscribe(UnderStringRxTest::print);
+        kt.camelCase("FooBar").subscribe(UnderStringRxTest::print);
+        kt.camelCase("Foo Bar").subscribe(UnderStringRxTest::print);
+        kt.camelCase("fooBar").subscribe(UnderStringRxTest::print);
+        kt.camelCase("--foo-bar--").subscribe(UnderStringRxTest::print);
+        kt.camelCase("__FOO_BAR__").subscribe(UnderStringRxTest::print);
     }
 
     @Test
@@ -36,6 +45,13 @@ public class UnderStringRxTest {
         test.kebabCase("fooBar").subscribe(UnderStringRxTest::print);
         test.kebabCase("--foo-bar--").subscribe(UnderStringRxTest::print);
         test.kebabCase("__FOO_BAR__").subscribe(UnderStringRxTest::print);
+        print("==============================================");
+        kt.kebabCase("").subscribe(UnderStringRxTest::print);
+        kt.kebabCase("FooBar").subscribe(UnderStringRxTest::print);
+        kt.kebabCase("Foo Bar").subscribe(UnderStringRxTest::print);
+        kt.kebabCase("fooBar").subscribe(UnderStringRxTest::print);
+        kt.kebabCase("--foo-bar--").subscribe(UnderStringRxTest::print);
+        kt.kebabCase("__FOO_BAR__").subscribe(UnderStringRxTest::print);
     }
 
     @Test
@@ -56,6 +72,7 @@ public class UnderStringRxTest {
 
     @Test
     public void lowerFirst() {
+        test.lowerFirst("").subscribe(UnderStringRxTest::print);
         test.lowerFirst("Fred").subscribe(UnderStringRxTest::print);
         test.lowerFirst("FRED").subscribe(UnderStringRxTest::print);
     }
