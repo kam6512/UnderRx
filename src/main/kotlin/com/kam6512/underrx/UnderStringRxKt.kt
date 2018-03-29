@@ -1,7 +1,9 @@
 package com.kam6512.underrx
 
 import com.google.common.base.Strings
+import com.google.common.collect.Lists
 import io.reactivex.Observable
+import java.text.Normalizer
 
 open class UnderStringRxKt {
 
@@ -102,5 +104,46 @@ open class UnderStringRxKt {
                 .map { it.trim() }
                 .map { it.toLowerCase() }
     }
+
+    fun capitalize(source: String): Observable<String> {
+        return Observable.just(source)
+                .filter { !Strings.isNullOrEmpty(it) }
+                .map { it.trim() }
+                .map { it.toLowerCase() }
+                .map { it.substring(0, 1).toUpperCase().plus(it.substring(1)) }
+    }
+
+    fun deburr(source: String): Observable<String> {
+        val regex = "\\p{InCombiningDiacriticalMarks}+".toRegex()
+        return Observable.just(source)
+                .filter { !Strings.isNullOrEmpty(it) }
+                .map { Normalizer.normalize(it, Normalizer.Form.NFD) }
+                .map { it.replace(regex, non) }
+    }
+
+    fun repeat(source: String, repeatCount: Long): Observable<String> {
+        return Observable.just(source).repeat(repeatCount).scan(String::plus).takeLast(1)
+    }
+
+    fun splitToList(source: String, splitBy: String, takeCount: Int): Observable<List<String>> {
+        return Observable.just(source)
+                .filter { !Strings.isNullOrEmpty(it) }
+                .map { it.split(splitBy.toRegex()) }
+                .map { Lists.newArrayList(it) }
+                .map { it.subList(0, takeCount) }
+    }
+
+    fun trimStart(source: String): Observable<String> {
+        return Observable.just(source).filter { Strings.isNullOrEmpty(it) }.map { it.replace("^\\s+".toRegex(), non) }
+    }
+
+    fun trimEnd(source: String): Observable<String> {
+        return Observable.just(source).filter { Strings.isNullOrEmpty(it) }.map { it.replace("\\s+$".toRegex(), non) }
+    }
+
+    fun word(source: String): Observable<List<String>> {
+        return Observable.just(source).filter { Strings.isNullOrEmpty(it) }.map { it.split("\\W+".toRegex()) }.map { Lists.newArrayList(it) }
+    }
+
 
 }

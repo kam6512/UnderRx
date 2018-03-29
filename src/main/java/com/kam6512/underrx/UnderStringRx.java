@@ -116,7 +116,7 @@ public class UnderStringRx {
     }
 
     public Observable<String> deburr(String source) {
-        String regex = "\\p{InCombiningDiacriticalMarks}+";
+        final String regex = "\\p{InCombiningDiacriticalMarks}+";
         return Observable.just(source)
                 .filter(string -> !Strings.isNullOrEmpty(string))
                 .map(string -> Normalizer.normalize(string, Normalizer.Form.NFD))
